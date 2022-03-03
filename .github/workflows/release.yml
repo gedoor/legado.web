@@ -42,8 +42,7 @@ jobs:
       - name: Set Env
         shell: bash
         run: |
-          time="$(date -u -d '+8 hour' '+%Y.%m.%d')"
-          version="v${time}"
+          version="v$(date -d "8 hour" -u +3.%y.%m%d%H)"
           echo "APP_VER=$version" >> $GITHUB_ENV
           tag_name=$(curl -s https://api.github.com/repos/gedoor/legado_web_bookshelf/releases/latest|jq .tag_name -r)
           echo "TAG_NAME=$tag_name" >> $GITHUB_ENV

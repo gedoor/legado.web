@@ -31,8 +31,7 @@ jobs:
       - name: Set Env
         shell: bash
         run: |
-          time="$(date -u -d '+8 hour' '+%Y.%m.%d')"
-          version="v${time}"
+          version="v$(date -d "8 hour" -u +3.%y.%m%d%H%M)"
           echo "APP_VER=$version" >> $GITHUB_ENV
           tag_name=$(curl -s https://api.github.com/repos/gedoor/legado_web_bookshelf/releases/latest|jq .tag_name -r)
           echo "TAG_NAME=$tag_name" >> $GITHUB_ENV
@@ -67,3 +66,15 @@ jobs:
           name: master_${{ env.APP_VER }}
           path: ${{ github.workspace }}/master/dist
           if-no-files-found: error
+
+      - name: Push changes to legado
+        if: ${{ github.actor == 'gedoor' }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git clone "https://${{ github.actor }}:${{ secrets.ACTIONS_TOKEN }}@github.com/${{ github.actor }}/legado" --depth 1
+          rm -rf legado/app/src/main/assets/web/bookshelf/*
+          mv -f $GITHUB_WORKSPACE/master/dist/* legado/app/src/main/assets/web/bookshelf/
+          cd legado
+          git commit -a -m "web bookshelf: ${{ env.APP_VER }}"
+          git push
