@@ -26,7 +26,8 @@ Vue.use(VueLazyload, {
   attempt: 1,
   adapter: {
     error({ src }) {
-      let image = getImageFromLegado(src);
+      let width = vuex.state.config.readWidth;
+      let image = getImageFromLegado(src, width)
       if (image != null) {
         src = image;
       }

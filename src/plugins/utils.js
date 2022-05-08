@@ -1,4 +1,4 @@
-function getImageFromLegado(src) {
+function getImageFromLegado(src, width) {
   if (/cover\?path=|data:/.test(src)) {
     return null
   }
@@ -8,7 +8,7 @@ function getImageFromLegado(src) {
     "&url=" +
     encodeURIComponent(sessionStorage.getItem("bookUrl")) +
     "&width=" +
-    this.$store.state.config.readWidth
+    width
  );
 }
 
