@@ -7,6 +7,7 @@ import "./plugins/md5.js";
 import ajax from "./plugins/ajax";
 import vuex from "./plugins/vuex";
 import VueLazyload from "vue-lazyload";
+import getImageFromLegado from "./plugins/utils.js";
 
 Vue.config.productionTip = false;
 new Vue({
@@ -22,7 +23,15 @@ Vue.use(VueLazyload, {
   preLoad: 1.3,
   error: require("./assets/imgs/error.png"),
   loading: require("./assets/imgs/loading.gif"),
-  attempt: 1
+  attempt: 1,
+  adapter: {
+    error({ src }) {
+      let image = getImageFromLegado(src);
+      if (image != null) {
+        src = image;
+      }
+    }
+  }
 });
 
 /**

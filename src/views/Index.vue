@@ -72,7 +72,7 @@
             @click="toDetail(book.bookUrl, book.name, book.durChapterIndex)"
           >
             <div class="cover-img">
-              <img class="cover" :src="getCover(book.coverUrl)" alt="" />
+              <img class="cover" v-lazy="getCover(book.coverUrl)" :key="book.coverUrl" alt="" />
             </div>
             <div
               class="info"

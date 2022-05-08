@@ -17,7 +17,7 @@ export default {
             if (!/<img[^>]*src/.test(a)) {
               return <p style={style} domPropsInnerHTML={a} />;
             }
-            return <img v-lazy={this.proxyImage(a)} />;
+            return <img v-lazy={this.getImageSrc(a)} />;
           })}
         </div>
       );
@@ -37,20 +37,10 @@ export default {
     }
   },
   methods: {
-    proxyImage(content) {
+    getImageSrc(content) {
       let imgPattern = /<img[^>]*src="([^"]*(?:"[^>]+\})?)"[^>]*>/;
       let src = content.match(imgPattern)[1];
-      if (/^data:/.test(src)) {
-        return src;
-      }
-      return (
-        "../../image?path=" +
-        encodeURIComponent(src) +
-        "&url=" +
-        encodeURIComponent(sessionStorage.getItem("bookUrl")) +
-        "&width=" +
-        this.$store.state.config.readWidth
-      );
+      return src;
     }
   },
   watch: {
