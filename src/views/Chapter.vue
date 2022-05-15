@@ -101,10 +101,8 @@
     <div class="chapter" ref="content" :style="chapterTheme">
       <div class="content">
         <div class="top-bar" ref="top"></div>
-        <div v-for="data in chapterData" :key="data.index">
-          <div class="title" ref="title" v-if="show">{{ data.title }}</div>
-          <Pcontent :carray="data.content" />
-        </div>
+        <div class="title" ref="title" v-if="show">{{ title }}</div>
+        <Pcontent :carray="content" />
         <div class="bottom-bar" ref="bottom"></div>
       </div>
     </div>
@@ -163,7 +161,6 @@ export default {
         var index = that.$store.state.readingBook.index || 0;
         this.getContent(index);
         window.addEventListener("keyup", this.handleKeyPress);
-        window.addEventListener("scroll", this.handleScroll);
       },
       err => {
         that.loading.close();
@@ -174,12 +171,14 @@ export default {
   },
   destroyed() {
     window.removeEventListener("keyup", this.handleKeyPress);
-    window.removeEventListener("scroll", this.handleScroll);
     this.readSettingsVisible = false;
     this.popCataVisible = false;
   },
   watch: {
-    chapterData() {
+    title() {
+      document.title = sessionStorage.getItem("bookName") + " | " + this.title;
+    },
+    content() {
       this.$store.commit("setContentLoading", false);
     },
     theme(theme) {
@@ -213,7 +212,8 @@ export default {
     return {
       noPoint: true,
       showToolBar: false,
-      chapterData: []
+      content: [],
+      title: ""
     };
   },
   computed: {
@@ -317,10 +317,10 @@ export default {
     getCatalog(bookUrl) {
       return ajax.get("/getChapterList?url=" + encodeURIComponent(bookUrl));
     },
-    getContent(index, showLoading = true) {
+    getContent(index) {
       //展示进度条
-      showLoading && this.$store.commit("setShowContent", false);
-      if (!this.loading.visible && showLoading) {
+      this.$store.commit("setShowContent", false);
+      if (!this.loading.visible) {
         this.loading = this.$loading({
           target: this.$refs.content,
           lock: true,
@@ -337,12 +337,11 @@ export default {
       this.$store.state.readingBook.index = index;
       sessionStorage.setItem("chapterIndex", index);
       //let chapterUrl = this.$store.state.readingBook.catalog[index].url;
-      let title = this.$store.state.readingBook.catalog[index].title;
+      this.title = this.$store.state.readingBook.catalog[index].title;
       let chapterIndex = this.$store.state.readingBook.catalog[index].index;
-      this.saveReadingBookProgress(chapterIndex, title);
-      document.title = sessionStorage.getItem("bookName") + " | " + title;
+      this.saveReadingBookProgress(chapterIndex, this.title);
       //强制滚回顶层
-      showLoading && jump(this.$refs.top, { duration: 0 });
+      jump(this.$refs.top, { duration: 0 });
       let that = this;
       ajax
         .get(
@@ -355,12 +354,10 @@ export default {
           res => {
             if (res.data.isSuccess) {
               let data = res.data.data;
-              let content = data.split(/\n+/);
-              that.chapterData.push({ index, content, title });
+              that.content = data.split(/\n+/);
             } else {
               that.$message.error("书源正文解析错误！");
-              let content = ["书源正文解析失败！"];
-              that.chapterData.push({ index, content, title });
+              that.content = ["书源正文解析失败！"];
             }
             this.$store.commit("setContentLoading", true);
             that.loading.close();
@@ -372,8 +369,7 @@ export default {
           },
           err => {
             that.$message.error("获取章节内容失败");
-            let content = ["获取章节内容失败！"];
-            that.chapterData.push({ index, content, title });
+            that.content = ["获取章节内容失败！"];
             that.loading.close();
             that.$store.commit("setShowContent", true);
             throw err;
@@ -417,19 +413,6 @@ export default {
         durChapterTime: new Date().getMilliseconds(),
         durChapterTitle: title
       });
-    },
-    loadMore() {
-      let index = this.$store.state.readingBook.index;
-      if (this.$store.state.readingBook.catalog.length - 1 > index) {
-        this.getContent(index + 1, false);
-      }
-    },
-    //监听页面位置
-    handleScroll() {
-      let doc = document.documentElement;
-      if (doc.scrollTop + doc.clientHeight >= 0.9 * doc.scrollHeight) {
-        this.loadMore();
-      }
     },
     toShelf() {
       this.$router.push("/");
@@ -483,10 +466,6 @@ export default {
 
 >>> .pop-cata {
   margin-left: 10px;
-}
-
->>> .scroll-container {
-  overflow-y: hidden !important;
 }
 
 .chapter-wrapper {
