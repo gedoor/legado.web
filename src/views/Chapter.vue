@@ -101,7 +101,7 @@
     <div class="chapter" ref="content" :style="chapterTheme">
       <div class="content">
         <div class="top-bar" ref="top"></div>
-        <div v-for="data in chapterData" :key="data.index" ref="chapter">
+        <div v-for="data in chapterData" :key="data.url">
           <div class="title" ref="title" v-if="show">{{ data.title }}</div>
           <Pcontent :carray="data.content" />
         </div>
@@ -342,7 +342,7 @@ export default {
       localStorage.setItem(bookUrl, JSON.stringify(book));
       this.$store.state.readingBook.index = index;
       sessionStorage.setItem("chapterIndex", index);
-      //let chapterUrl = this.$store.state.readingBook.catalog[index].url;
+      let url = this.$store.state.readingBook.catalog[index].url;
       let title = this.$store.state.readingBook.catalog[index].title;
       let chapterIndex = this.$store.state.readingBook.catalog[index].index;
       this.saveReadingBookProgress(chapterIndex, title);
@@ -361,7 +361,7 @@ export default {
               let data = res.data.data;
               let content = data.split(/\n+/);
               this.updateChapterData(
-                { index, content, title },
+                { url, content, title },
                 reloadChapter,
                 loadMore
               );
@@ -369,7 +369,7 @@ export default {
               that.$message.error("书源正文解析错误！");
               let content = ["书源正文解析失败！"];
               this.updateChapterData(
-                { index, content, title },
+                { url, content, title },
                 reloadChapter,
                 loadMore
               );
@@ -386,7 +386,7 @@ export default {
             that.$message.error("获取章节内容失败");
             let content = ["获取章节内容失败！"];
             this.updateChapterData(
-                { index, content, title },
+                { url, content, title },
                 reloadChapter,
                 loadMore
               );
@@ -469,7 +469,7 @@ export default {
       }
       //上滑顶部1/10加载上一章
       if (offset < 0 && scrollTop < 0.1 * scrollHeight) {
-        //this.loadBefore();
+        this.loadBefore();
       }
       this.oldScrollTop = scrollTop;
     }),
