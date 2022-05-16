@@ -386,10 +386,10 @@ export default {
             that.$message.error("获取章节内容失败");
             let content = ["获取章节内容失败！"];
             this.updateChapterData(
-                { url, content, title },
-                reloadChapter,
-                loadMore
-              );
+              { url, content, title },
+              reloadChapter,
+              loadMore
+            );
             that.loading.close();
             that.$store.commit("setShowContent", true);
             throw err;
@@ -427,7 +427,7 @@ export default {
     saveReadingBookProgress(index, title) {
       ajax.post("/saveBookProgress", {
         name: this.$store.state.readingBook.name,
-        author: String,
+        author: this.$store.state.readingBook.author,
         durChapterIndex: index,
         durChapterPos: 0,
         durChapterTime: new Date().getMilliseconds(),
