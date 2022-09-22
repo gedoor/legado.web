@@ -265,7 +265,7 @@ export default {
       let shelf = this.$store.state.shelf;
       return shelf.filter(book => {
         if (this.search == "") return true
-        book.name.includes(this.search) ||
+        return book.name.includes(this.search) ||
         book.author.includes(this.search)
       });
     },
