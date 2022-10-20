@@ -68,7 +68,7 @@ jobs:
 
       - name: Upload Master
         if: ${{ needs.prepare.outputs.upload_url }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: master_${{ needs.prepare.outputs.version }}
           path: ${{ github.workspace }}/master/dist
@@ -112,7 +112,7 @@ jobs:
 
       - name: Upload Slave
         if: ${{ needs.prepare.outputs.upload_url }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: slave_${{ needs.prepare.outputs.version }}
           path: ${{ github.workspace }}/slave/dist
