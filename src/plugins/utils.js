@@ -1,4 +1,6 @@
-export function getImageFromLegado(src, width) {
+import vuex from "./plugins/vuex";
+
+export function getImageFromLegado(src) {
   if (/cover\?path=|data:/.test(src)) {
     return null;
   }
@@ -8,6 +10,6 @@ export function getImageFromLegado(src, width) {
     "&url=" +
     encodeURIComponent(sessionStorage.getItem("bookUrl")) +
     "&width=" +
-    width
+    vuex.state.config.readWidth
   );
 }
