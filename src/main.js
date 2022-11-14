@@ -26,8 +26,9 @@ Vue.use(VueLazyload, {
   attempt: 1,
   filter: {
      //判断链接是否含有Urloption ,{...}
-     dynamicReplace({ src }) {
-       return /,\s*\{.*\}$/.test(src) ? getImageFromLegado(src) : src;
+     dynamicReplace(listener, _) {
+       const { src } = listener
+       listener.src = /,\s*\{.*\}$/.test(src) ? getImageFromLegado(src) : src;
      }
   },
   adapter: {

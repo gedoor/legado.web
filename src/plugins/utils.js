@@ -1,4 +1,4 @@
-import vuex from "./plugins/vuex";
+import vuex from "./vuex";
 
 export function getImageFromLegado(src) {
   if (/cover\?path=|data:/.test(src)) {
