@@ -14,10 +14,10 @@ export default {
       return (
         <div>
           {this.carray.map((a) => {
-            if (!/<img[^>]*src/.test(a)) {
+            if (!/<img[^>]*src[^>]+>$/.test(a)) {
               return <p style={style} domPropsInnerHTML={a} />;
             }
-            return <img v-lazy={this.getImageSrc(a)} />;
+            return <img class="full" v-lazy={this.getImageSrc(a)} />;
           })}
         </div>
       );
@@ -63,7 +63,7 @@ p {
   word-wrap: break-word;
   word-break: break-all;
 }
-img {
+img.full {
   margin-left:auto;
   margin-right:auto;
   display:block;
