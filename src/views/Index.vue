@@ -29,7 +29,8 @@
                   readingRecent.url,
                   readingRecent.name,
                   readingRecent.author,
-                  readingRecent.chapterIndex
+                  readingRecent.chapterIndex,
+                  readingRecent.chapterPos
                 )
               "
               :class="{ 'no-point': readingRecent.url == '' }"
@@ -75,7 +76,8 @@
                 book.bookUrl,
                 book.name,
                 book.author,
-                book.durChapterIndex
+                book.durChapterIndex,
+                book.durChapterPos
               )
             "
           >
@@ -94,7 +96,8 @@
                   book.bookUrl,
                   book.name,
                   book.author,
-                  book.durChapterIndex
+                  book.durChapterIndex,
+                  book.durChapterPos
                 )
               "
             >
@@ -187,16 +190,18 @@ export default {
   },
   methods: {
     setIP() {},
-    toDetail(bookUrl, bookName, bookAuthor, chapterIndex) {
+    toDetail(bookUrl, bookName, bookAuthor, chapterIndex, chapterPos) {
       sessionStorage.setItem("bookUrl", bookUrl);
       sessionStorage.setItem("bookName", bookName);
       sessionStorage.setItem("bookAuthor", bookAuthor);
       sessionStorage.setItem("chapterIndex", chapterIndex);
+      sessionStorage.setItem("chapterPos", chapterPos);
       this.readingRecent = {
         name: bookName,
         author: bookAuthor,
         url: bookUrl,
         chapterIndex: chapterIndex,
+        chapterPos: chapterPos,
       };
       localStorage.setItem("readingRecent", JSON.stringify(this.readingRecent));
       this.$router.push({
