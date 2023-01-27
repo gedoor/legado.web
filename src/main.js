@@ -7,6 +7,7 @@ import "./plugins/md5.js";
 import ajax from "./plugins/ajax";
 import vuex from "./plugins/vuex";
 import VueLazyload from "vue-lazyload";
+import { getImageFromLegado } from "./plugins/utils";
 
 Vue.config.productionTip = false;
 new Vue({
