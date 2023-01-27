@@ -1,8 +1,9 @@
 import vuex from "./vuex";
 
 export function getImageFromLegado(src) {
-  if (/cover\?path=|data:/.test(src)) {
-    return null;
+  //返回阅读代理的图片链接 已经代理的或者dataurl返回传入值
+  if (/cover\?path=|image\?path|data:/.test(src)) {
+    return src;
   }
   return (
     "../../image?path=" +
