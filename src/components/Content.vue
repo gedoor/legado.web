@@ -62,6 +62,9 @@ p {
   display: block;
   word-wrap: break-word;
   word-break: break-all;
+  >>> img {
+    height: 1em;
+  }
 }
 img.full {
   margin-left:auto;
