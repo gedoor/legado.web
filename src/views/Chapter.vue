@@ -385,16 +385,14 @@ export default {
           (res) => {
             if (res.data.isSuccess) {
               let data = res.data.data;
-              let length = data.length;
               let content = data.split(/\n+/);
-              that.updateChapterData({ index, content, title, length }, reloadChapter);
+              that.updateChapterData({ index, content, title }, reloadChapter);
               //跳到合适位置
               this.toChapterPos(chapterPos);
             } else {
               that.$message.error("书源正文解析错误！");
               let content = ["书源正文解析失败！"];
-              let length = title.length + 9;
-              that.updateChapterData({ index, content, title, length }, reloadChapter);
+              that.updateChapterData({ index, content, title }, reloadChapter);
             }
             that.$store.commit("setContentLoading", true);
             that.loading.close();
@@ -407,8 +405,7 @@ export default {
           (err) => {
             that.$message.error("获取章节内容失败");
             let content = ["获取章节内容失败！"];
-            let length = title.length + 9;
-            that.updateChapterData({ index, content, title, length }, reloadChapter);
+            that.updateChapterData({ index, content, title }, reloadChapter);
             that.loading.close();
             that.$store.commit("setShowContent", true);
             throw err;
@@ -418,14 +415,19 @@ export default {
     toChapterPos(chapterPos) {
       if (!chapterPos) return;
       this.$nextTick(() => {
-       let contentLength = this.chapterData[0]?.length;
-       let contentHeight = this.$refs.chapter[0]?.getBoundingClientRect()?.height;
-       if (!contentLength || !contentHeight) return;
-       jump(
-         chapterPos / contentLength * contentHeight,
-         { duration: 0 }
-       );
-     });
+        //计算chapterPos对应的段落行数
+        let wordCount = 0;
+        let index = this.chapterData[0].content.findIndex(paragraph => {
+          wordCount += paragraph.length;
+          return wordCount >= this.chapterPos;
+        });
+        if (index == -1) index = this.chapterData[0].content.length -1;
+        //跳转
+        jump(
+          this.$refs.chapter[0].children[1].children[index],
+          { duration: 0 }
+        );
+      });
     },
     handleScroll() {
       requestAnimationFrame(this.computeChapterPos);
@@ -433,19 +435,20 @@ export default {
     //计算当前章节阅读的字数
     computeChapterPos() {
       this.$nextTick(function() {
-        let readingChapterElement = this.$refs.chapter?.find(element => {
-          let titleElement = element.querySelector(".title");
-          let chapterTitleIndex = parseInt(titleElement?.getAttribute("index") ?? -1);
-          return chapterTitleIndex == this.chapterIndex
-        });
-        let rect = readingChapterElement?.getBoundingClientRect();
-        let contentLength = this.chapterData.find(chapter=>chapter.index == this.chapterIndex)?.length;
+        //计算当前阅读进度对应的element
+        let index = this.chapterData.findIndex(chapter => chapter.index == this.chapterIndex);
+        if (index == -1) return;
+        let element = this.$refs.chapter[index].children[1].children;
+        //计算已读字数
         let chapterPos = 0;
-        if (readingChapterElement && rect && contentLength) {
-          let readedContentHeight = rect.top <= 0 ? 0 - rect.top : this.windowHeight - rect.top;
-          chapterPos = parseInt(readedContentHeight / rect.height * contentLength);
+        for (let paragraph of element) {
+          let text = paragraph.innerText;
+          chapterPos += text.length;
+          if (paragraph.getBoundingClientRect().top >= 0) {
+            this.chapterPos = chapterPos;
+            break;
+          }
         }
-        this.chapterPos = chapterPos;
       });
     },
     toTop() {
