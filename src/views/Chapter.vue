@@ -156,8 +156,6 @@ export default {
         var index = that.$store.state.readingBook.index || 0;
         this.getContent(index, true, chapterPos);
         window.addEventListener("keyup", this.handleKeyPress);
-        //记录当前章节已经阅读的位置
-        window.addEventListener("scroll", this.handleScroll);
         //监听底部加载
         this.scrollObserve = new IntersectionObserver(
           this.handleIScrollObserve,
@@ -169,6 +167,8 @@ export default {
         this.readingObserve = new IntersectionObserver(
           this.handleIReadingObserve
         );
+        //第二次点击同一本书 页面标题不会变化
+        document.title = null;
         document.title = bookName + " | " + book.catalog[index].title;
       },
       (err) => {
@@ -178,12 +178,13 @@ export default {
       }
     );
   },
-  beforeDestroy() {
+  beforeRouteLeave(to, from, next) {
+    this.computeChapterPos();
     this.saveReadingBookProgress(this.chapterIndex);
+    next();
   },
   destroyed() {
     window.removeEventListener("keyup", this.handleKeyPress);
-    window.removeEventListener("scroll", this.handleScroll);
     this.readSettingsVisible = false;
     this.popCataVisible = false;
     this.scrollObserve && this.scrollObserve.disconnect();
@@ -429,27 +430,24 @@ export default {
         );
       });
     },
-    handleScroll() {
-      requestAnimationFrame(this.computeChapterPos);
-    },
     //计算当前章节阅读的字数
     computeChapterPos() {
-      this.$nextTick(function() {
-        //计算当前阅读进度对应的element
-        let index = this.chapterData.findIndex(chapter => chapter.index == this.chapterIndex);
-        if (index == -1) return;
-        let element = this.$refs.chapter[index].children[1].children;
-        //计算已读字数
-        let chapterPos = 0;
-        for (let paragraph of element) {
-          let text = paragraph.innerText;
-          chapterPos += text.length;
-          if (paragraph.getBoundingClientRect().top >= 0) {
-            this.chapterPos = chapterPos;
-            break;
-          }
+      //dom没渲染时再nextTick中调用
+      if (!this.$refs.chapter[0]) return this.$nextTick(this.computeChapterPos);
+      //计算当前阅读进度对应的element
+      let index = this.chapterData.findIndex(chapter => chapter.index == this.chapterIndex);
+      if (index == -1) return;
+      let element = this.$refs.chapter[index].children[1].children;
+      //计算已读字数
+      let chapterPos = 0;
+      for (let paragraph of element) {
+        let text = paragraph.innerText;
+        chapterPos += text.length;
+        if (paragraph.getBoundingClientRect().top >= 0) {
+          this.chapterPos = chapterPos;
+          break;
         }
-      });
+      }
     },
     toTop() {
       jump(this.$refs.top);
