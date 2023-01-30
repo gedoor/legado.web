@@ -157,7 +157,7 @@ export default {
     });
     const that = this;
     ajax
-      .get("/getBookshelf", {
+      .get(`/getBookshelf?t=${Date.now()}`, {
         timeout: 5000,
       })
       .then(function (response) {
