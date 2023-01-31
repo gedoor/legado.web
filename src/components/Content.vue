@@ -1,6 +1,5 @@
 <script>
 import config from "../plugins/config";
-import { getImageFromLegado } from "../plugins/utils";
 
 export default {
   name: "pcontent",
@@ -21,8 +20,9 @@ export default {
               return <img class="full" v-lazy={this.getImageSrc(a)} />;
             }
             //其余情况的图片视为内嵌文字
-            const html = this.parseHtml(a);
-            return <p style={style} domPropsInnerHTML={html} />;
+            //先替换src为data-src 使用v-lazy-container实现懒加载
+            const html = this.replaceImageSrc(a);
+            return <p v-lazy-container style={style} domPropsInnerHTML={html} />;
           })}
         </div>
       );
@@ -47,22 +47,13 @@ export default {
   methods: {
     getImageSrc(content) {
       const imgPattern = /<img[^>]*src="([^"]*(?:"[^>]+\})?)"[^>]*>/;
-      const src = content.match(imgPattern)[1];
-      return this.replaceImgSrcWithLegado(src);
+      return content.match(imgPattern)[1];
     },
-    replaceImgSrcWithLegado(src) {
-      //相对链接 | 显示带有urlOption 先替换，隐式带有的通过onerror替换
-      if (!/^http/.test(src) || /,\s*\{.*\}$/.test(src))
-        return getImageFromLegado(src);
-      return src;
-    },
-    parseHtml(content) {
-      //段落内可能含有多个img标签 并且来源可能不是网络资源，正则替换
+    replaceImageSrc(content) {
+      //段落内可能含有多个img标签 替换src为data-src
       const imgPattern = /<img[^>]*src="([^"]*(?:"[^>]+\})?)"[^>]*>/g;
       for (let [match, src] of content.matchAll(imgPattern)) {
-        const img = `<img src="${this.replaceImgSrcWithLegado(
-          src
-        )}" onerror="this.src='${getImageFromLegado(src)}';this.onerror=null">`;
+        const img = `<img data-src="${src}" />`;
         content = content.replace(match, img);
       }
       return content;
