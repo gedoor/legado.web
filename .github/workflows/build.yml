@@ -6,6 +6,8 @@ on:
       - master
   workflow_dispatch:
 
+env:
+  UPSTREAM_REPOSITORY: gedoor/legado_web_bookshelf
 
 jobs:
   master:
@@ -29,12 +31,12 @@ jobs:
           npm install
 
       - name: Format code
-        if: ${{ github.actor == 'gedoor' }}
+        if: ${{ github.repository == env.UPSTREAM_REPOSITORY }}
         run: |
           npm run-script lint
 
       - name: push changes
-        if: ${{ github.actor == 'gedoor' }}
+        if: ${{ github.repository == env.UPSTREAM_REPOSITORY }}
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
           commit_message: 'style: format code'
@@ -45,7 +47,7 @@ jobs:
           npm run-script build
 
       - name: Set Env
-        # if: ${{ github.actor == 'gedoor' }}
+        if: ${{ github.repository == env.UPSTREAM_REPOSITORY }}
         shell: bash
         run: |
           version="v$(date -d "8 hour" -u +3.%y.%m%d%H)"
@@ -53,7 +55,7 @@ jobs:
 
       - name: Push changes to legado
         continue-on-error: true
-        # if: ${{ github.actor == 'gedoor' }}
+        if: ${{ github.repository == env.UPSTREAM_REPOSITORY }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
