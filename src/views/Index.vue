@@ -156,7 +156,9 @@ export default {
       spinner: "el-icon-loading",
       background: "rgb(247,247,247)",
     });
-    this.saveBookProcessToApp().finally((_) => this.fetchBookShelfData());
+    this.$store.dispatch("saveBookProcess")
+      .then(() => this.$store.commit("clearReadingBook"))
+      .finally(() =>this.fetchBookShelfData());
   },
   methods: {
     setIP() {},
@@ -233,23 +235,6 @@ export default {
             : "..") +
             "/cover?path=" +
             encodeURIComponent(coverUrl);
-    },
-    saveBookProcessToApp() {
-      if (this.$store.state.catalog == false) return this.$nextTick();
-      let index = this.$store.state.readingBook.index;
-      let chapterPos = this.$store.state.readingBook.chapterPos;
-      let title = this.$store.state.catalog[index].title;
-
-      return ajax
-        .post("/saveBookProgress", {
-          name: this.$store.state.readingBook.bookName,
-          author: this.$store.state.readingBook.bookAuthor,
-          durChapterIndex: index,
-          durChapterPos: chapterPos,
-          durChapterTime: new Date().getTime(),
-          durChapterTitle: title,
-        })
-        .then((_) => this.$store.commit("clearReadingBook"));
     },
     fetchBookShelfData() {
       const that = this;

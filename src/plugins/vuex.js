@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import ajax from "./ajax";
 
 Vue.use(Vuex);
 
@@ -64,6 +65,28 @@ export default new Vuex.Store({
     clearReadingBook(state) {
       state.catalog = [];
       state.readingBook = {};
+    },
+  },
+  actions: {
+    //保存进度到app
+    saveBookProcess({ state }) {
+      return new Promise((resolve, reject) => {
+        if (state.catalog.length == 0) return resolve();
+        const { index, chapterPos, bookName, bookAuthor } = state.readingBook.index;
+        let title = state.catalog[index].title;
+
+        ajax
+          .post("/saveBookProgress", {
+            name: bookName,
+            author: bookAuthor,
+            durChapterIndex: index,
+            durChapterPos: chapterPos,
+            durChapterTime: new Date().getTime(),
+            durChapterTitle: title,
+          })
+          .then(() => resolve())
+          .catch(error => reject(error))
+      });
     },
   },
 });

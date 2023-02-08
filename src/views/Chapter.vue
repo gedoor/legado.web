@@ -204,7 +204,8 @@ export default {
     chapterIndex(index) {
       document.title =
         sessionStorage.getItem("bookName") + " | " + this.catalog[index].title;
-      //this.saveReadingBookProgressToBrowser(index);
+      this.saveReadingBookProgressToBrowser(index);
+      this.$store.dispatch("saveBookProcess");
     },
     theme(theme) {
       this.isNight = theme == 6;
