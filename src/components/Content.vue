@@ -88,4 +88,7 @@ img.full {
   display:block;
   width:100%;
 }
+img[lazy=loading] {
+  transform: scale(0.1);
+}
 </style>
